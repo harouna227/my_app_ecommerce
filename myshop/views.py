@@ -1,9 +1,11 @@
 from django.shortcuts import render
 
+from .models import Product
 
 def shop(request):
-    context = {}
-    return render(request, 'myshop/shop.html')
+    products = Product.objects.all()
+    context = {'products': products}
+    return render(request, 'myshop/shop.html', context)
 
 
 def cart(request):
