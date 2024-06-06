@@ -15,7 +15,7 @@ def shop(request):
         cartItems = order.get_cart_items
     else:
         items = []
-        order = {'get_cart_total': 0, 'get_cart_items': 0}
+        order = {'get_cart_total': 0, 'get_cart_items': 0, 'shopping': False}
         cartItems = order['get_cart_items']
 
 
@@ -37,7 +37,7 @@ def cart(request):
         cartItems = order.get_cart_items
     else:
         items = []
-        order = {'get_cart_total': 0, 'get_cart_items': 0}
+        order = {'get_cart_total': 0, 'get_cart_items': 0, 'shopping': False}
         cartItems = order['get_cart_items']
         
     context = {
