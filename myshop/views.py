@@ -4,12 +4,12 @@ import datetime
 from django.shortcuts import render
 from django.http import JsonResponse
 
-from .models import Product, Order, Customer, OrderItem
+from .models import Product, Order, Customer, OrderItem, ShippingAddress
 
 def shop(request):
 
     if request.user.is_authenticated:
-        customer = request.user.id
+        customer = request.user.customer
         # print(customer)
         order, created = Order.objects.get_or_create(customer=customer, complete=False)
         items = order.orderitem_set.all()
@@ -31,7 +31,7 @@ def shop(request):
 
 def cart(request):
     if request.user.is_authenticated:
-        customer = request.user.id
+        customer = request.user.customer
         # print(customer)
         order, created = Order.objects.get_or_create(customer=customer, complete=False)
         items = order.orderitem_set.all()
@@ -51,7 +51,7 @@ def cart(request):
 
 def checkout(request):
     if request.user.is_authenticated:
-        customer = request.user.id
+        customer = request.user.customer
         order, created = Order.objects.get_or_create(customer=customer, complete=False)
         items = order.orderitem_set.all()
         cartItems = order.get_cart_items
@@ -79,7 +79,7 @@ def update_item(request):
     # print('productid:', productId)
     # print('action:', action)
 
-    customer = request.user.id
+    customer = request.user.customer
     product = Product.objects.get(id=productId)
     order, created = Order.objects.get_or_create(customer=customer, complete=False)
 
@@ -102,10 +102,25 @@ def process_order(request):
     data = json.loads(request.body)
     
     if request.user.is_authenticated:
-        customer = request.user.id
+        customer = request.user.customer
         order, created = Order.objects.get_or_create(customer=customer, complete=False)
         total = float(data['form']['total'])
         order.transaction_id = transasction_id
         
+        if total == float(order.get_cart_total):
+            order.complete = True
+        order.save()
+        
+        if order.shipping == True:
+            ShippingAddress.objects.create(
+                customer=customer,
+                order=order,
+                address=data['shipping']['address'],
+                city=data['shipping']['city'],
+                state=data['shipping']['state'],
+                zipcode=data['shipping']['zipcode'],
+            )
+    else:
+        print("l'utilisateur n'est connecté")
         
     return JsonResponse('Paiment est soumi...', safe=False)

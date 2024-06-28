@@ -22,7 +22,7 @@ class Product(models.Model):
 		return self.name
 
 class Order(models.Model):
-	customer = models.ForeignKey(Customer, on_delete=models.SET_NULL, null=True, blank=True)
+	customer = models.ForeignKey(Customer, null=True, blank=True, on_delete=models.SET_NULL)
 	date_ordered = models.DateTimeField(auto_now_add=True)
 	complete = models.BooleanField(default=False)
 	transaction_id = models.CharField(max_length=100, null=True)
@@ -30,13 +30,14 @@ class Order(models.Model):
 	def __str__(self):
 		return str(self.id)
 	
-	def shopping(self):
+	@property
+	def shipping(self):
 		shipping = True
 		orderitems = self.orderitem_set.all()
 		for i in orderitems:
 			if i.product.digital == False:
-				shopping = True
-		return shopping
+				shipping = True
+		return shipping
 
  	
 	@property
